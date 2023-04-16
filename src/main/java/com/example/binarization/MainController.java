@@ -19,8 +19,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainController {
@@ -147,78 +145,74 @@ public class MainController {
         doGreyScale(img);
     }
 
-    @FXML
-    private void onOtsuBtn() {
-        int[][] tab = new int[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                int val = bufferedImage.getRGB(x,y);
+    private int[] arrayOfOccurence(BufferedImage bImage){
+        int[] tab = new int[256];
+        for (int row = 0; row < bImage.getWidth(); row++) {
+            for (int col = 0; col < bImage.getHeight(); col++) {
+                int val = bImage.getRGB(row,col);
                 int r = (val>>16) & 0xff;
                 int g = (val>>8) & 0xff;
                 int b = val & 0xff;
-                int avg = (r+g+b)/3;
-                tab[x][y]=avg;
+                int m = (r + g + b)/3;
+                tab[m]++;
             }
         }
+        return tab;
+    }
+    private static double getWeight(int tab[], int pixelCount, int start,int end){
+        double sum = 0;
+        for (int i = start; i < end; i++) {
+            sum += tab[i];
+        }
+        return sum/pixelCount;
+    }
 
-        for (int k=0;k<256;k++) {
-            int Treshold = k;
-            double Pxl = width*height;
-            int pBG = 0;
-            int pFG = 0;
-            double sumBG = 0.0;
-            double sumFG = 0.0;
-            List<Double> bgElements = new ArrayList<>();
-            List<Double> fgElements = new ArrayList<>();
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-//                    System.out.print(tab[i][j] + " | ");
-                    if (tab[i][j] >= Treshold) {
-                        pFG++;
-                        sumFG += tab[i][j];
-                        fgElements.add((double) tab[i][j]);
-                    } else {
-                        pBG++;
-                        sumBG += tab[i][j];
-                        bgElements.add((double) tab[i][j]);
-                    }
-                }
-//                System.out.println();
-            }
+    private static double getMean(int tab[], int start, int end){
+        double max = 0;
+        double sum = 0;
+        for (int i = start; i < end; i++) {
+            sum += tab[i]*i;
+            max += tab[i];
+        }
+        return sum/max;
+    }
 
-            double weightBG = (double) pBG / Pxl;
-            double weightFG = (double) pFG / Pxl;
 
-//            System.out.println("pBG = " + pBG + " | pFG = " + pFG);
-//            System.out.println("wBG = " + weightBG + " | wFG = " + weightFG);
 
-            double avgBG, avgFG;
+    private int getOtsuTreshold() {
+        int[] tab = arrayOfOccurence(bufferedImage);
 
-            avgBG = sumBG / pBG;
-            avgFG = sumFG / pFG;
 
-            double warBGpart = 0;
-            double warFGpart = 0;
+        double[] weightBG = new double[256];
+        double[] weightFG = new double[256];
+        double[] meanBG = new double[256];
+        double[] meanFG = new double[256];
 
-            for (int i = 0; i < pBG; i++) {
-                warBGpart += Math.pow((bgElements.get(i) - avgBG), 2);
-            }
-            for (int i = 0; i < pFG; i++) {
-                warFGpart += Math.pow((fgElements.get(i) - avgFG), 2);
-            }
+        int pixelCount = bufferedImage.getWidth()*bufferedImage.getHeight();
 
-            double warBG = warBGpart / pBG;
-            double warFG = warFGpart / pFG;
-
-//            System.out.println("avgBG = " + avgBG + " | avgFG = " + avgFG);
-//            System.out.println(bgElements);
-//            System.out.println(fgElements);
-//            System.out.println("warBG = " + warBG + " | warFG = " + warFG);
-
-            double warTotal = warBG * weightBG + warFG * weightFG;
-
-            System.out.println("Wariancja dla Tresholdu="+k+" wynosi: " + warTotal);
+        for (int i =0; i<256; i++){
+            weightBG[i] = getWeight(tab, pixelCount, 0, i);
+            weightFG[i] = getWeight(tab,pixelCount,i+1,256);
+            meanBG[i] = getMean(tab,0,i);
+            meanFG[i] = getMean(tab,i+1,256);
         }
 
+        double max = 0;
+        int pos = 0;
+
+        for (int i = 0; i < 256; i++) {
+            double war = weightBG[i]*weightFG[i] * (meanBG[i]-meanFG[i]) * (meanBG[i]-meanFG[i]);
+            if (war > max){
+                max = war;
+                pos = i;
+            }
+        }
+        System.out.println(pos);
+        return pos;
+    }
+
+    public void onOtsuBtn(ActionEvent actionEvent) {
+        int treshold = getOtsuTreshold();
+        doBinarization(bufferedImage, treshold);
     }
 }

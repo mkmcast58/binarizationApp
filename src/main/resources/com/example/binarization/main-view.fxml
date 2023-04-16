@@ -49,7 +49,7 @@
             <Button fx:id="binarzBtn" mnemonicParsing="false" onAction="#onBinarizationClick" text="Binaryzacja" />
             <Button fx:id="greyScaleBtn" mnemonicParsing="false" onAction="#onGreyScaleClick" text="Szarość" />
              <Button fx:id="histBtn" onAction="#onHistogramClick" text="Histogram" />
-            <Button fx:id="otsuBtn" mnemonicParsing="false" onAction="#onOtsuBtn" text="Otsu" />
+            <Button fx:id="btnOtsuTwo" mnemonicParsing="false" onAction="#onOtsuBtn" text="Otsu 2" />
          </children>
       </VBox>
    </right>
