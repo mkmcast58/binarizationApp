@@ -50,6 +50,7 @@
             <Button fx:id="greyScaleBtn" mnemonicParsing="false" onAction="#onGreyScaleClick" text="Szarość" />
              <Button fx:id="histBtn" onAction="#onHistogramClick" text="Histogram" />
             <Button fx:id="btnOtsuTwo" mnemonicParsing="false" onAction="#onOtsuBtn" text="Otsu 2" />
+            <Button fx:id="bernsenBtn" mnemonicParsing="false" onAction="#onBernsenBtn" text="Bernsen" />
          </children>
       </VBox>
    </right>
