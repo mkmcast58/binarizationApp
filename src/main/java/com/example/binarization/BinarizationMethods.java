@@ -42,7 +42,7 @@ public class BinarizationMethods {
         return tab;
     }
 
-    private static double getWeight(int tab[], int pixelCount, int start,int end){
+    private static double getWeight(int[] tab, int pixelCount, int start, int end){
         double sum = 0;
         for (int i = start; i < end; i++) {
             sum += tab[i];
@@ -50,7 +50,7 @@ public class BinarizationMethods {
         return sum/pixelCount;
     }
 
-    private static double getMean(int tab[], int start, int end){
+    private static double getMean(int[] tab, int start, int end){
         double max = 0;
         double sum = 0;
         for (int i = start; i < end; i++) {
@@ -94,18 +94,230 @@ public class BinarizationMethods {
     public static void display2DArr(int[][] tab){
         for (int row = 0; row < tab.length; row++) {
             for (int col = 0; col < tab[0].length; col++) {
+                //System.out.print("tab["+row+"]["+col+"] = "+tab[row][col]+"|");
                 System.out.print(tab[row][col]+"|");
             }
             System.out.println();
         }
     }
 
-    public static Image doBinarizationBernsen(BufferedImage bImage) {
-        System.out.println("test");
-        int[][] imageGrey = new int[bImage.getWidth()][bImage.getHeight()];
-        System.out.println("Image Width="+imageGrey.length+" | Image Height="+imageGrey[0].length);
-        //display2DArr(imageGrey);
+    private static int[][] greyImageTab(BufferedImage bImage){
+        int[][] imageGreyTab = new int [bImage.getHeight()][bImage.getWidth()];
+        for (int row = 0; row < bImage.getHeight(); row++) {
+            for (int col = 0; col < bImage.getWidth(); col++) {
+                int val = bImage.getRGB(col,row);
+                int r = (val>>16) & 0xff;
+                int g = (val>>8) & 0xff;
+                int b = val & 0xff;
+                int m = (r + g + b)/3;
+                imageGreyTab[row][col] = m;
+            }
+        }
+        return imageGreyTab;
+    }
+
+    private static int[][] paddingImage(int imageArr[][], int radius){
+        int rows = imageArr.length;
+        int col = imageArr[0].length;
+        int paddedRows = rows+2*radius;
+        int paddedCols = col+2*radius;
+        int[][] imageArrPadded = new int[paddedRows][paddedCols];
+        System.out.println("Wiersz = "+rows+" Kolumny = "+col);
+        System.out.println("Wiersz = "+paddedRows+" Kolumny = "+paddedCols);
+        for (int i = radius; i < rows+radius; i++) {
+            for (int j = radius; j < col+radius; j++) {
+                imageArrPadded[i][j]=imageArr[i-radius][j-radius];
+            }
+        }
+        return imageArrPadded;
+    }
+
+    private static int getMinimum(int[][] block) {
+        int minVal = block[0][0];
+        for (int i = 0; i < block.length; i++) {
+            for (int j = 0; j < block[i].length; j++) {
+                if (block[i][j] < minVal) {
+                    minVal = block[i][j];
+                }
+            }
+        }
+        return minVal;
+    }
+
+    private static int getMaximum(int[][] block) {
+        int maxVal = block[0][0];
+        for (int i = 0; i < block.length; i++) {
+            for (int j = 0; j < block[i].length; j++) {
+                if (block[i][j] > maxVal) {
+                    maxVal = block[i][j];
+                }
+            }
+        }
+        return maxVal;
+    }
+
+
+
+    public static Image doBinarizationBernsen(BufferedImage bImage, int contrastLimit, int radius) {
+        int[][] imageGrey = greyImageTab(bImage);
+        int[][] imgPadded = paddingImage(imageGrey, radius);
+        //
+        int brSize = 1+2*radius;
+        int[][] endTresh = new int[bImage.getHeight()][bImage.getWidth()];
+
+        System.out.println(imgPadded.length);
+        System.out.println(imgPadded[0].length);
+        //display2DArr(imgPadded);
+        for (int x = radius; x < imgPadded.length-radius; x++) {
+            for (int y = radius; y < imgPadded[0].length-radius; y++) {
+                int[][]bracket = new int[brSize][brSize];
+                for (int i = 0; i < brSize; i++) {
+                    for (int j = 0; j < brSize; j++) {
+                        bracket[i][j] = imgPadded[i+x-radius][j+y-radius];
+                    }
+                }
+                //display2DArr(bracket);
+                int zLow = getMinimum(bracket);
+                int zHigh = getMaximum(bracket);
+
+                int basicTresh= (zLow+zHigh)/2;
+                int localContrast = zHigh-zLow;
+                endTresh[x-radius][y-radius] = basicTresh;
+                ;
+//                if(localContrast<contrastLimit){
+//                    endTresh[x-radius][y-radius] = 0;
+//                }else{
+//                    endTresh[x-radius][y-radius] = basicTresh;
+//                }
+
+            }
+        }
+        for (int row = 0; row < bImage.getHeight(); row++) {
+            for (int col = 0; col < bImage.getWidth(); col++) {
+                int val = bImage.getRGB(col, row);
+                int grey = (val>>16) & 0xff;
+                if (grey<endTresh[row][col]){
+                    bImage.setRGB(col, row, Color.BLACK.getRGB());
+                }else {
+                    bImage.setRGB(col, row, Color.WHITE.getRGB());
+                }
+            }
+        }
+
         Image imageBinarizedBernsen = SwingFXUtils.toFXImage(bImage, null);
         return imageBinarizedBernsen;
+    }
+
+    private static double getMeanFromBracket(int[][] tab){
+        double sum = 0;
+        for (int i = 0; i < tab.length; i++) {
+            for (int j = 0; j < tab[i].length; j++) {
+                sum+=tab[i][j];
+            }
+        }
+        return sum/(tab.length * tab.length);
+    }
+
+
+    public static Image doBinarizationNiblack(BufferedImage bImage, int radius) {
+        int[][] imageGrey = greyImageTab(bImage);
+        int[][] imgPadded = paddingImage(imageGrey, radius);
+        int brSize = 1+2*radius;
+        double k = -0.2;
+        int[][] tNiblack = new int[bImage.getHeight()][bImage.getWidth()];
+        for (int x = radius; x < imgPadded.length-radius; x++) {
+            for (int y = radius; y < imgPadded[0].length-radius; y++) {
+                int[][] bracket = new int[brSize][brSize];
+                for (int i = 0; i < brSize; i++) {
+                    for (int j = 0; j < brSize; j++) {
+                        bracket[i][j] = imgPadded[i + x - radius][j + y - radius];
+                    }
+                }
+                double mean = getMeanFromBracket(bracket);
+                int[] bracket1dim = get1DimBracket(bracket);
+                double stdDev = getStandardDeviation(bracket1dim,mean);
+                tNiblack[x-radius][y-radius] = (int) (mean + k*stdDev);
+            }
+        }
+        //display2DArr(tNiblack);
+        for (int row = 0; row < bImage.getHeight(); row++) {
+            for (int col = 0; col < bImage.getWidth(); col++) {
+                int val = bImage.getRGB(col, row);
+                int grey = (val>>16) & 0xff;
+                if (grey<tNiblack[row][col]){
+                    bImage.setRGB(col, row, Color.BLACK.getRGB());
+                }else {
+                    bImage.setRGB(col, row, Color.WHITE.getRGB());
+                }
+            }
+        }
+        Image imageBinarizedNiblack = SwingFXUtils.toFXImage(bImage, null);
+        return imageBinarizedNiblack;
+    }
+
+    private static int[] get1DimBracket(int[][] bracket) {
+        int[] bracket1dim = new int[bracket.length*bracket.length];
+        for (int i = 0; i < bracket.length; i++) {
+            for (int j = 0; j < bracket[i].length; j++) {
+                bracket1dim[i*bracket.length+j] = bracket[i][j];
+            }
+        }
+        return bracket1dim;
+    }
+
+    public static double getStandardDeviation(int[] data, double mean){
+        double sumOfSquares = 0.0;
+        double[] deviation = new double[data.length];
+        for (int i = 0; i < deviation.length; i++) {
+            deviation[i] = data[i]-mean; //dewiacja od średniej
+            deviation[i] *= deviation[i];
+            sumOfSquares+=deviation[i];
+        }
+        double variance = sumOfSquares/(data.length-1);
+        double stdDeviation = Math.sqrt(variance);
+        return stdDeviation;
+    }
+
+    public static void dis1DArray(double tab[]){
+        for (int i = 0; i < tab.length; i++) {
+            System.out.print(tab[i]+" ");
+        }
+        System.out.println();
+    }
+
+    public static Image doBinarizationSauvola(BufferedImage bImage, int radius) {
+        int[][] imageGrey = greyImageTab(bImage);
+        int[][] imgPadded = paddingImage(imageGrey, radius);
+        int brSize = 1+2*radius;
+        double k = -0.2;
+        double dynRange = 128.0;
+        int[][] tSauvola = new int[bImage.getHeight()][bImage.getWidth()];
+        for (int x = radius; x < imgPadded.length-radius; x++) {
+            for (int y = radius; y < imgPadded[0].length-radius; y++) {
+                int[][] bracket = new int[brSize][brSize];
+                for (int i = 0; i < brSize; i++) {
+                    for (int j = 0; j < brSize; j++) {
+                        bracket[i][j] = imgPadded[i + x - radius][j + y - radius];
+                    }
+                }
+                double mean = getMeanFromBracket(bracket);
+                int[] bracket1dim = get1DimBracket(bracket);
+                double stdDev = getStandardDeviation(bracket1dim,mean);
+                tSauvola[x-radius][y-radius] = (int) (mean * (1 - k * (stdDev/dynRange-1)));
+            }
+        }
+        for (int row = 0; row < bImage.getHeight(); row++) {
+            for (int col = 0; col < bImage.getWidth(); col++) {
+                int val = bImage.getRGB(col, row);
+                int grey = (val>>16) & 0xff;
+                if (grey<tSauvola[row][col]){
+                    bImage.setRGB(col, row, Color.BLACK.getRGB());
+                }else {
+                    bImage.setRGB(col, row, Color.WHITE.getRGB());
+                }
+            }
+        }
+        Image imageBinarizedSauvola= SwingFXUtils.toFXImage(bImage, null);
+        return imageBinarizedSauvola;
     }
 }

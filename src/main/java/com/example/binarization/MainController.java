@@ -6,12 +6,13 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -19,32 +20,59 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 
-public class MainController{
+public class MainController implements Initializable {
     @FXML
     public ImageView imgOrg;
     @FXML
     public ImageView imgEdit;
-    public TextField binarTreshField;
+    @FXML
+    private TextField binarTreshField;
     public Button histBtn;
     @FXML
+    private TextField radiusFld;
+    @FXML
+    private TextField contrastFld;
+    @FXML
     private Button bernsenBtn;
-    Dialog<String> dialog = new Dialog<String>();
+
     Image imageOrginal;
     private BufferedImage bufferedImage;
     public Button resetBtn;
     private int width;
     private int height;
     Stage stage;
-    @FXML
-    private Label welcomeText;
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        binarTreshField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldVal, String newVal) {
+                if (!newVal.matches("\\d*")) {
+                    binarTreshField.setText(newVal.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+        contrastFld.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldVal, String newVal) {
+                if (!newVal.matches("\\d*")) {
+                    contrastFld.setText(newVal.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
 
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+        radiusFld.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldVal, String newVal) {
+                if (!newVal.matches("\\d*")) {
+                    radiusFld.setText(newVal.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
     }
-
     @FXML
     protected void onOpenAction() {
         FileChooser fileChooser = new FileChooser();
@@ -88,7 +116,7 @@ public class MainController{
 
     public void onBinarizationClick(ActionEvent actionEvent) {
         int threshold = Integer.parseInt(binarTreshField.getText());
-        BufferedImage img = SwingFXUtils.fromFXImage(imgEdit.getImage(), null);
+        BufferedImage img = SwingFXUtils.fromFXImage(imgOrg.getImage(), null);
         Image imageBinarized = BinarizationMethods.doBinarization(img,threshold);
         imgEdit.setImage(imageBinarized);
     }
@@ -131,51 +159,30 @@ public class MainController{
         imgEdit.setImage(imageBinarizedOtsu);
     }
 
+
+
     public void onBernsenBtn() {
         BufferedImage bImageBernsen = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
-        dialog.setTitle("Wprowadź dane");
+        doGreyScale(bImageBernsen);
+        int contrastVal = Integer.parseInt(contrastFld.getText());
+        int radiusVal = Integer.parseInt(radiusFld.getText());
+        Image imageBinarizedBernsen = BinarizationMethods.doBinarizationBernsen(bImageBernsen,contrastVal,radiusVal);
+        imgEdit.setImage(imageBinarizedBernsen);
+    }
+    public void onNiblackBtn() {
+        BufferedImage bImageNiblack = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        doGreyScale(bImageNiblack);
+        int radiusVal = Integer.parseInt(radiusFld.getText());
+        Image imageBinarizedBernsen = BinarizationMethods.doBinarizationNiblack(bImageNiblack,radiusVal);
+        imgEdit.setImage(imageBinarizedBernsen);
+    }
 
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        Label label1 = new Label("Limit kontrastu");
-        Label label2 = new Label("Rozmiar");
-        TextField contrastField = new TextField();
-        TextField radiusField = new TextField();
-        contrastField.setText("15");
-        radiusField.setText("15");
-        gridPane.add(label1,0,0);
-        gridPane.add(label2,0,1);
-        gridPane.add(contrastField,1,0);
-        gridPane.add(radiusField,1,1);
 
-        dialog.getDialogPane().setContent(gridPane);
-        ButtonType confirmBtnType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confirmBtnType, ButtonType.CANCEL);
-
-        contrastField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String oldVal, String newVal) {
-                if (!newVal.matches("\\d*")) {
-                    contrastField.setText(newVal.replaceAll("[^\\d]", ""));
-                }
-            }
-        });
-
-        radiusField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String oldVal, String newVal) {
-                if (!newVal.matches("\\d*")) {
-                    radiusField.setText(newVal.replaceAll("[^\\d]", ""));
-                }
-            }
-        });
-
-//        Node confirmButton = dialog.getDialogPane().lookupButton(confirmBtnType);
-//        confirmButton.setDisable(true);
-        dialog.showAndWait();
-
-        Image imageBinarizedBernsen = BinarizationMethods.doBinarizationBernsen(bImageBernsen);
+    public void onSauvolaBtn() {
+        BufferedImage bImageSauvola = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        doGreyScale(bImageSauvola);
+        int radiusVal = Integer.parseInt(radiusFld.getText());
+        Image imageBinarizedBernsen = BinarizationMethods.doBinarizationSauvola(bImageSauvola,radiusVal);
         imgEdit.setImage(imageBinarizedBernsen);
     }
 }
