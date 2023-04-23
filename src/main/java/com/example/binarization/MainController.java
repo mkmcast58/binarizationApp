@@ -83,7 +83,6 @@ public class MainController implements Initializable {
             bufferedImage = ImageIO.read(file);
             width = bufferedImage.getWidth();
             height = bufferedImage.getHeight();
-
             imageOrginal = SwingFXUtils.toFXImage(bufferedImage, null);
             imgOrg.setImage(imageOrginal);
             imgEdit.setImage(imageOrginal);
@@ -91,6 +90,22 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
 
+
+    }
+    public void onSaveAction(ActionEvent actionEvent) {
+        FileChooser saveFileChooser = new FileChooser();
+        saveFileChooser.setTitle("Zapisz obraz");
+        Image savedImage = imgEdit.getImage();
+        FileChooser.ExtensionFilter exJpg = new FileChooser.ExtensionFilter("JPG", "*.jpg");
+        FileChooser.ExtensionFilter exGIF = new FileChooser.ExtensionFilter("GIF", "*.gif");
+        FileChooser.ExtensionFilter exPNG = new FileChooser.ExtensionFilter("PNG", "*.png");
+        saveFileChooser.getExtensionFilters().addAll(exJpg,exGIF,exPNG);
+        File savedFile = saveFileChooser.showSaveDialog(stage);
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(savedImage,null),"png",savedFile);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
     }
     public void onResetClick() {
@@ -185,4 +200,6 @@ public class MainController implements Initializable {
         Image imageBinarizedBernsen = BinarizationMethods.doBinarizationSauvola(bImageSauvola,radiusVal);
         imgEdit.setImage(imageBinarizedBernsen);
     }
+
+
 }

@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 
 public class BinarizationMethods {
 
-    public static Image doBinarization(BufferedImage img, int treshold){
+    public static Image doBinarization(BufferedImage img, int threshold){
         for (int row = 0; row < img.getWidth(); row++) {
             for (int col = 0; col < img.getHeight(); col++) {
                 int val = img.getRGB(row, col);
@@ -16,15 +16,14 @@ public class BinarizationMethods {
                 int g = (val>>8) & 0xff;
                 int b = val & 0xff;
                 int m = (r + g + b)/3;
-                if (m >= treshold) {
+                if (m >= threshold) {
                     img.setRGB(row, col, Color.WHITE.getRGB());
                 }else{
                     img.setRGB(row, col, Color.BLACK.getRGB());
                 }
             }
         }
-        Image imageBinarized = SwingFXUtils.toFXImage(img, null);
-        return imageBinarized;
+        return SwingFXUtils.toFXImage(img, null);
     }
 
     private static int[] arrayOfOccurrence(BufferedImage bImage){
@@ -116,7 +115,7 @@ public class BinarizationMethods {
         return imageGreyTab;
     }
 
-    private static int[][] paddingImage(int imageArr[][], int radius){
+    private static int[][] paddingImage(int[][] imageArr, int radius){
         int rows = imageArr.length;
         int col = imageArr[0].length;
         int paddedRows = rows+2*radius;
@@ -182,13 +181,12 @@ public class BinarizationMethods {
 
                 int basicTresh= (zLow+zHigh)/2;
                 int localContrast = zHigh-zLow;
-                endTresh[x-radius][y-radius] = basicTresh;
-                ;
-//                if(localContrast<contrastLimit){
-//                    endTresh[x-radius][y-radius] = 0;
-//                }else{
-//                    endTresh[x-radius][y-radius] = basicTresh;
-//                }
+
+                if(localContrast<contrastLimit){
+                    endTresh[x-radius][y-radius] = 0;
+                }else{
+                    endTresh[x-radius][y-radius] = basicTresh;
+                }
 
             }
         }
@@ -204,8 +202,7 @@ public class BinarizationMethods {
             }
         }
 
-        Image imageBinarizedBernsen = SwingFXUtils.toFXImage(bImage, null);
-        return imageBinarizedBernsen;
+        return SwingFXUtils.toFXImage(bImage, null);
     }
 
     private static double getMeanFromBracket(int[][] tab){
