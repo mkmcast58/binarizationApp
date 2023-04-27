@@ -202,4 +202,10 @@ public class MainController implements Initializable {
     }
 
 
+    public void onMedianFltr(ActionEvent actionEvent) {
+        BufferedImage bImageMedianF = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        int radiusVal = Integer.parseInt(radiusFld.getText());
+        Image imageMedianFlt = Filters.doMedianFilter(bImageMedianF,radiusVal);
+        imgEdit.setImage(imageMedianFlt);
+    }
 }

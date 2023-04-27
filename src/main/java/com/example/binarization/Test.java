@@ -16,6 +16,13 @@ public class Test {
         for (int i = 0; i < 0; i++) {
             System.out.println(i);
         }
+        int[] arr = new int[9];
+        System.out.println(arr.length);
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = (int) Math.random();
+            System.out.println(arr[i]);
+        }
+
     }
 
     private void dialogFail(){

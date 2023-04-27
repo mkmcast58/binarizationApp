@@ -90,39 +90,17 @@ public class BinarizationMethods {
         return pos;
     }
 
-    public static void display2DArr(int[][] tab){
-        for (int row = 0; row < tab.length; row++) {
-            for (int col = 0; col < tab[0].length; col++) {
-                //System.out.print("tab["+row+"]["+col+"] = "+tab[row][col]+"|");
-                System.out.print(tab[row][col]+"|");
-            }
-            System.out.println();
-        }
-    }
 
-    private static int[][] greyImageTab(BufferedImage bImage){
-        int[][] imageGreyTab = new int [bImage.getHeight()][bImage.getWidth()];
-        for (int row = 0; row < bImage.getHeight(); row++) {
-            for (int col = 0; col < bImage.getWidth(); col++) {
-                int val = bImage.getRGB(col,row);
-                int r = (val>>16) & 0xff;
-                int g = (val>>8) & 0xff;
-                int b = val & 0xff;
-                int m = (r + g + b)/3;
-                imageGreyTab[row][col] = m;
-            }
-        }
-        return imageGreyTab;
-    }
 
-    private static int[][] paddingImage(int[][] imageArr, int radius){
+
+    public static int[][] paddingImage(int[][] imageArr, int radius){
         int rows = imageArr.length;
         int col = imageArr[0].length;
         int paddedRows = rows+2*radius;
         int paddedCols = col+2*radius;
         int[][] imageArrPadded = new int[paddedRows][paddedCols];
-        System.out.println("Wiersz = "+rows+" Kolumny = "+col);
-        System.out.println("Wiersz = "+paddedRows+" Kolumny = "+paddedCols);
+        //System.out.println("Wiersz = "+rows+" Kolumny = "+col);
+        //System.out.println("Wiersz = "+paddedRows+" Kolumny = "+paddedCols);
         for (int i = radius; i < rows+radius; i++) {
             for (int j = radius; j < col+radius; j++) {
                 imageArrPadded[i][j]=imageArr[i-radius][j-radius];
@@ -158,14 +136,14 @@ public class BinarizationMethods {
 
 
     public static Image doBinarizationBernsen(BufferedImage bImage, int contrastLimit, int radius) {
-        int[][] imageGrey = greyImageTab(bImage);
+        int[][] imageGrey = Helpers.greyImageTab(bImage);
         int[][] imgPadded = paddingImage(imageGrey, radius);
         //
         int brSize = 1+2*radius;
         int[][] endTresh = new int[bImage.getHeight()][bImage.getWidth()];
 
-        System.out.println(imgPadded.length);
-        System.out.println(imgPadded[0].length);
+        //System.out.println(imgPadded.length);
+        //System.out.println(imgPadded[0].length);
         //display2DArr(imgPadded);
         for (int x = radius; x < imgPadded.length-radius; x++) {
             for (int y = radius; y < imgPadded[0].length-radius; y++) {
@@ -217,7 +195,7 @@ public class BinarizationMethods {
 
 
     public static Image doBinarizationNiblack(BufferedImage bImage, int radius) {
-        int[][] imageGrey = greyImageTab(bImage);
+        int[][] imageGrey = Helpers.greyImageTab(bImage);
         int[][] imgPadded = paddingImage(imageGrey, radius);
         int brSize = 1+2*radius;
         double k = -0.2;
@@ -252,7 +230,7 @@ public class BinarizationMethods {
         return imageBinarizedNiblack;
     }
 
-    private static int[] get1DimBracket(int[][] bracket) {
+    public static int[] get1DimBracket(int[][] bracket) {
         int[] bracket1dim = new int[bracket.length*bracket.length];
         for (int i = 0; i < bracket.length; i++) {
             for (int j = 0; j < bracket[i].length; j++) {
@@ -275,7 +253,7 @@ public class BinarizationMethods {
         return stdDeviation;
     }
 
-    public static void dis1DArray(double tab[]){
+    public static void dis1DArray(double[] tab){
         for (int i = 0; i < tab.length; i++) {
             System.out.print(tab[i]+" ");
         }
@@ -283,7 +261,7 @@ public class BinarizationMethods {
     }
 
     public static Image doBinarizationSauvola(BufferedImage bImage, int radius) {
-        int[][] imageGrey = greyImageTab(bImage);
+        int[][] imageGrey = Helpers.greyImageTab(bImage);
         int[][] imgPadded = paddingImage(imageGrey, radius);
         int brSize = 1+2*radius;
         double k = -0.2;
