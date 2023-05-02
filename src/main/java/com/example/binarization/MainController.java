@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static com.example.binarization.Filters.*;
+import static com.example.binarization.Helpers.*;
+
 
 public class MainController implements Initializable {
     @FXML
@@ -207,5 +210,25 @@ public class MainController implements Initializable {
         int radiusVal = Integer.parseInt(radiusFld.getText());
         Image imageMedianFlt = Filters.doMedianFilter(bImageMedianF,radiusVal);
         imgEdit.setImage(imageMedianFlt);
+    }
+
+    public void onPixelizationAction(ActionEvent actionEvent) {
+        BufferedImage bImagePixelize = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        int pixelSize = Integer.parseInt(radiusFld.getText());
+        Image imageMedianFlt = Filters.doPixelization(bImagePixelize,pixelSize);
+        imgEdit.setImage(imageMedianFlt);
+    }
+
+    public void onKuwaharaAction(ActionEvent actionEvent) {
+        BufferedImage bImageKuwahara = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        int radius = Integer.parseInt(radiusFld.getText());
+        Image imageMedianFlt = doKuwahara(bImageKuwahara,radius);
+        imgEdit.setImage(imageMedianFlt);
+    }
+
+    public void onHSVBtn(ActionEvent actionEvent) {
+        BufferedImage bImageHSV = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        Image imageHSV = (convertRgbToHsv(bImageHSV));
+        imgEdit.setImage(imageHSV);
     }
 }

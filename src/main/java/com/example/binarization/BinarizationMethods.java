@@ -100,7 +100,7 @@ public class BinarizationMethods {
         int paddedCols = col+2*radius;
         int[][] imageArrPadded = new int[paddedRows][paddedCols];
         //System.out.println("Wiersz = "+rows+" Kolumny = "+col);
-        //System.out.println("Wiersz = "+paddedRows+" Kolumny = "+paddedCols);
+        //ystem.out.println("Wiersz = "+paddedRows+" Kolumny = "+paddedCols);
         for (int i = radius; i < rows+radius; i++) {
             for (int j = radius; j < col+radius; j++) {
                 imageArrPadded[i][j]=imageArr[i-radius][j-radius];
@@ -183,7 +183,7 @@ public class BinarizationMethods {
         return SwingFXUtils.toFXImage(bImage, null);
     }
 
-    private static double getMeanFromBracket(int[][] tab){
+    public static double getMeanFromBracket(int[][] tab){
         double sum = 0;
         for (int i = 0; i < tab.length; i++) {
             for (int j = 0; j < tab[i].length; j++) {
@@ -229,7 +229,15 @@ public class BinarizationMethods {
         Image imageBinarizedNiblack = SwingFXUtils.toFXImage(bImage, null);
         return imageBinarizedNiblack;
     }
-
+    public static double[] getDouble1DimBracket(double[][] bracket) {
+        double[] bracket1dim = new double[bracket.length*bracket.length];
+        for (int i = 0; i < bracket.length; i++) {
+            for (int j = 0; j < bracket[i].length; j++) {
+                bracket1dim[i*bracket.length+j] = bracket[i][j];
+            }
+        }
+        return bracket1dim;
+    }
     public static int[] get1DimBracket(int[][] bracket) {
         int[] bracket1dim = new int[bracket.length*bracket.length];
         for (int i = 0; i < bracket.length; i++) {
