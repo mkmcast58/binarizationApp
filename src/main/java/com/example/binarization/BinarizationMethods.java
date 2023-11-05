@@ -99,8 +99,6 @@ public class BinarizationMethods {
         int paddedRows = rows+2*radius;
         int paddedCols = col+2*radius;
         int[][] imageArrPadded = new int[paddedRows][paddedCols];
-        //System.out.println("Wiersz = "+rows+" Kolumny = "+col);
-        //ystem.out.println("Wiersz = "+paddedRows+" Kolumny = "+paddedCols);
         for (int i = radius; i < rows+radius; i++) {
             for (int j = radius; j < col+radius; j++) {
                 imageArrPadded[i][j]=imageArr[i-radius][j-radius];

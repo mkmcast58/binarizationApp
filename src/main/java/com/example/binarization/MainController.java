@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -23,8 +24,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static com.example.binarization.Filters.*;
-import static com.example.binarization.Helpers.*;
+import static com.example.binarization.Filters.doKuwahara;
+import static com.example.binarization.Helpers.convertRgbToHsv;
 
 
 public class MainController implements Initializable {
@@ -32,6 +33,7 @@ public class MainController implements Initializable {
     public ImageView imgOrg;
     @FXML
     public ImageView imgEdit;
+    public ImageView imgViewOrg;
     @FXML
     private TextField binarTreshField;
     public Button histBtn;
@@ -48,6 +50,7 @@ public class MainController implements Initializable {
     private int width;
     private int height;
     Stage stage;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         binarTreshField.textProperty().addListener(new ChangeListener<String>() {
@@ -66,7 +69,6 @@ public class MainController implements Initializable {
                 }
             }
         });
-
         radiusFld.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String oldVal, String newVal) {
@@ -88,6 +90,7 @@ public class MainController implements Initializable {
             height = bufferedImage.getHeight();
             imageOrginal = SwingFXUtils.toFXImage(bufferedImage, null);
             imgOrg.setImage(imageOrginal);
+
             imgEdit.setImage(imageOrginal);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -188,11 +191,11 @@ public class MainController implements Initializable {
         imgEdit.setImage(imageBinarizedBernsen);
     }
     public void onNiblackBtn() {
-        BufferedImage bImageNiblack = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
+        BufferedImage bImageNiblack = SwingFXUtils.fromFXImage(imgOrg.getImage(),null);
         doGreyScale(bImageNiblack);
         int radiusVal = Integer.parseInt(radiusFld.getText());
-        Image imageBinarizedBernsen = BinarizationMethods.doBinarizationNiblack(bImageNiblack,radiusVal);
-        imgEdit.setImage(imageBinarizedBernsen);
+        Image imageBinarizedNilback = BinarizationMethods.doBinarizationNiblack(bImageNiblack,radiusVal);
+        imgEdit.setImage(imageBinarizedNilback);
     }
 
 
@@ -200,8 +203,8 @@ public class MainController implements Initializable {
         BufferedImage bImageSauvola = SwingFXUtils.fromFXImage(imgEdit.getImage(),null);
         doGreyScale(bImageSauvola);
         int radiusVal = Integer.parseInt(radiusFld.getText());
-        Image imageBinarizedBernsen = BinarizationMethods.doBinarizationSauvola(bImageSauvola,radiusVal);
-        imgEdit.setImage(imageBinarizedBernsen);
+        Image imageBinarizedNilback = BinarizationMethods.doBinarizationSauvola(bImageSauvola,radiusVal);
+        imgEdit.setImage(imageBinarizedNilback);
     }
 
 
@@ -231,4 +234,44 @@ public class MainController implements Initializable {
         Image imageHSV = (convertRgbToHsv(bImageHSV));
         imgEdit.setImage(imageHSV);
     }
+
+    public void onDrawAction(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("segmentation-view.fxml"));
+        Parent root = loader.load();
+        ((SegmentationController)loader.getController()).setSegmentationView(imgOrg.getImage());
+        Stage drawStage = new Stage();
+        drawStage.setTitle("Segmentacja");
+        drawStage.setScene(new Scene(root));
+        drawStage.show();
+    }
+
+    public void onDrawBtn() {
+        imgEdit.setOnMouseClicked(event->{
+            double x = event.getX();
+            double y = event.getY();
+            System.out.println("Clicked coordinates: (" + x + ", " + y + ")");
+        });
+
+//        WritableImage wImage = new WritableImage(imageOrginal.getPixelReader(),
+//                    (int) imageOrginal.getWidth(),
+//                    (int) imageOrginal.getHeight()
+//        );
+//        FloodFiller filler = new FloodFiller(wImage, Color.WHITE);
+//        filler.fillImage(new Point2D(20,20),Color.BLUE);
+//        imgEdit.setImage(wImage);
+    }
+    @FXML
+    private void handleImageClick(MouseEvent event) {
+        double x = event.getX();
+        double y = event.getY();
+
+        double imageX = x / imgEdit.getBoundsInLocal().getWidth() * imgEdit.getImage().getWidth();
+        double imageY = y / imgEdit.getBoundsInLocal().getHeight() * imgEdit.getImage().getHeight();
+
+        // Handle the coordinates here
+        System.out.println("Clicked coordinates: (" + imageX + ", " + imageY + ")");
+    }
+
+
+
 }

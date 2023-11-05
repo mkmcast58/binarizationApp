@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.binarization.SegmentationController">
+    <top>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem text="Open" />
+                    <MenuItem text="Save" />
+                </Menu>
+            </MenuBar>
+         <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <children>
+             <Button fx:id="pencilBtn" contentDisplay="CENTER" onAction="#onPencil" text="Pencil" />
+               <Button fx:id="fillBtn" onAction="#onFill" text="Flood" />
+               <Button fx:id="testbtn" mnemonicParsing="false" onAction="#onTestBtn" text="Test" />
+            </children>
+         </HBox>
+            <ToolBar>
+                <HBox alignment="CENTER" spacing="6">
+                    <TextField fx:id="pencilSize" text="2" />
+                    <ColorPicker fx:id="colorPicker" />
+                    <CheckBox fx:id="eraser" />
+                </HBox>
+            </ToolBar>
+        </VBox>
+    </top>
+    <center>
+        <Canvas fx:id="canvas" />
+    </center>
+
+</BorderPane>

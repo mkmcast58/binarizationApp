@@ -35,6 +35,10 @@
                   <MenuItem mnemonicParsing="false" onAction="#onKuwaharaAction" text="Kuwahar" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Rysuj">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onDrawAction" text="Tryb Rysowania" />
+               </items></Menu>
         </menus>
       </MenuBar>
    </top>
@@ -69,6 +73,7 @@
             <Button fx:id="niblackBtn" mnemonicParsing="false" onAction="#onNiblackBtn" text="Niblack" />
             <Button fx:id="sauvolaBtn" mnemonicParsing="false" onAction="#onSauvolaBtn" text="Sauvola" />
             <Button mnemonicParsing="false" onAction="#onHSVBtn" text="HSV" />
+            <Button mnemonicParsing="false" onAction="#onDrawBtn" text="Rysuj" />
          </children>
       </VBox>
    </right>
@@ -89,7 +94,7 @@
                </VBox>
                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                    <children>
-                       <ImageView fx:id="imgEdit" fitHeight="750.0" fitWidth="600.0" preserveRatio="true" />
+                       <ImageView fx:id="imgEdit" onMouseClicked="#handleImageClick" fitHeight="750.0" fitWidth="600.0" preserveRatio="true" />
                    </children>
                </VBox>
            </items>
