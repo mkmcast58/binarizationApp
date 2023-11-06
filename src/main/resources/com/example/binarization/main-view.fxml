@@ -17,15 +17,10 @@
    <top>
       <MenuBar prefHeight="0.0" prefWidth="1377.0" BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="Plik">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onOpenAction" text="Open" />
-              <MenuItem mnemonicParsing="false" onAction="#onSaveAction" text="Save" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+                  <MenuItem mnemonicParsing="false" onAction="#onOpenAction" text="Otwórz" />
+              <MenuItem mnemonicParsing="false" onAction="#onSaveAction" text="Zapisz" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Filtry">
@@ -63,7 +58,7 @@
                   <Insets left="10.0" right="10.0" />
                </VBox.margin>
             </TextField>
-            <Label text="Radius:" />
+            <Label text="Rozmiar:" />
             <TextField fx:id="radiusFld" text="2">
                <VBox.margin>
                   <Insets left="10.0" right="10.0" />

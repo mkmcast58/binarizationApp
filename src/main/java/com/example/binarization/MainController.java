@@ -81,7 +81,6 @@ public class MainController implements Initializable {
     @FXML
     protected void onOpenAction() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Marcin\\Desktop\\images"));
         fileChooser.setTitle("Open Resource File");
         File file = fileChooser.showOpenDialog(stage);
         try {
